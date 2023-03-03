@@ -2,6 +2,7 @@ package com.example.shopreceipt.service;
 
 import com.example.shopreceipt.entity.Product;
 import com.example.shopreceipt.repository.ProductRepository;
+import com.example.shopreceipt.service.util.ProductTestBuilder;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -17,7 +18,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static com.example.shopreceipt.service.util.ProductTestBuilder.aProduct;
 import static com.example.shopreceipt.service.constants.TestConstants.PRODUCT_NAME_1;
 import static com.example.shopreceipt.service.constants.TestConstants.PRODUCT_NAME_2;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -47,9 +47,9 @@ class ProductServiceTest {
 
     @BeforeEach
     void setUp() {
-        product1 = aProduct().withId(1L).withName(PRODUCT_NAME_1).withPrice(5.0).withPromotion(false).build();
-        product2 = aProduct().withId(2L).withName(PRODUCT_NAME_2).build();
-        product3 = aProduct().withId(3L).withPromotion(true).build();
+        product1 = ProductTestBuilder.aProduct().withId(1L).withName(PRODUCT_NAME_1).withPrice(5.0).withPromotion(false).build();
+        product2 = ProductTestBuilder.aProduct().withId(2L).withName(PRODUCT_NAME_2).build();
+        product3 = ProductTestBuilder.aProduct().withId(3L).withPromotion(true).build();
     }
 
     @Nested

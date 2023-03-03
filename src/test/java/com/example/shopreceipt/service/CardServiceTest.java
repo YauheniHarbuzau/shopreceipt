@@ -2,6 +2,7 @@ package com.example.shopreceipt.service;
 
 import com.example.shopreceipt.entity.Card;
 import com.example.shopreceipt.repository.CardRepository;
+import com.example.shopreceipt.service.util.CardTestBuilder;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -17,7 +18,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static com.example.shopreceipt.service.util.CardTestBuilder.aCard;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,9 +44,9 @@ class CardServiceTest {
 
     @BeforeEach
     void setUp() {
-        card1 = aCard().withId(1L).withNumber(1111).withDiscount(10.0).build();
-        card2 = aCard().withId(2L).withNumber(1234).build();
-        card3 = aCard().withId(3L).build();
+        card1 = CardTestBuilder.aCard().withId(1L).withNumber(1111).withDiscount(10.0).build();
+        card2 = CardTestBuilder.aCard().withId(2L).withNumber(1234).build();
+        card3 = CardTestBuilder.aCard().withId(3L).build();
     }
 
     @Nested

@@ -2,6 +2,8 @@ package com.example.shopreceipt.service;
 
 import com.example.shopreceipt.entity.Card;
 import com.example.shopreceipt.entity.Product;
+import com.example.shopreceipt.service.util.CardTestBuilder;
+import com.example.shopreceipt.service.util.ProductTestBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -25,8 +27,6 @@ import static com.example.shopreceipt.service.constants.TestConstants.RECEIPT_LI
 import static com.example.shopreceipt.service.constants.TestConstants.SOURCE_LINE_1;
 import static com.example.shopreceipt.service.constants.TestConstants.SOURCE_LINE_2;
 import static com.example.shopreceipt.service.constants.TestConstants.SOURCE_LINE_3;
-import static com.example.shopreceipt.service.util.CardTestBuilder.aCard;
-import static com.example.shopreceipt.service.util.ProductTestBuilder.aProduct;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -56,24 +56,24 @@ class ReceiptServiceTest {
 
     @BeforeEach
     void setUp() {
-        product1 = aProduct().withId(1L).withName(PRODUCT_NAME_1).withPrice(5.0).withPromotion(false).build();
-        product2 = aProduct().withId(2L).withName(PRODUCT_NAME_2).withPrice(10.0).withPromotion(true).build();
-        product3 = aProduct().withId(3L).withName(PRODUCT_NAME_3).withPrice(15.0).withPromotion(true).build();
+        product1 = ProductTestBuilder.aProduct().withId(1L).withName(PRODUCT_NAME_1).withPrice(5.0).withPromotion(false).build();
+        product2 = ProductTestBuilder.aProduct().withId(2L).withName(PRODUCT_NAME_2).withPrice(10.0).withPromotion(true).build();
+        product3 = ProductTestBuilder.aProduct().withId(3L).withName(PRODUCT_NAME_3).withPrice(15.0).withPromotion(true).build();
 
-        card1 = aCard().withId(1L).withNumber(1234).withDiscount(10.0).build();
-        card2 = aCard().withId(2L).withNumber(1111).withDiscount(20.0).build();
+        card1 = CardTestBuilder.aCard().withId(1L).withNumber(1234).withDiscount(10.0).build();
+        card2 = CardTestBuilder.aCard().withId(2L).withNumber(1111).withDiscount(20.0).build();
 
-        MAP_LONG_INT.put(1L, 5); // ID 1, количество 5 шт.
-        MAP_LONG_INT.put(2L, 3); // ID 2, количество 3 шт.
-        MAP_LONG_INT.put(3L, 1); // ID 3, количество 1 шт.
+        MAP_LONG_INT.put(1L, 5);
+        MAP_LONG_INT.put(2L, 3);
+        MAP_LONG_INT.put(3L, 1);
 
-        PRICE_MAP.put(PRODUCT_NAME_1, 25.0); // product 1, 25,0$
-        PRICE_MAP.put(PRODUCT_NAME_2, 30.0); // product 2, 30,0$
-        PRICE_MAP.put(PRODUCT_NAME_3, 15.0); // product 3, 15,0$
+        PRICE_MAP.put(PRODUCT_NAME_1, 25.0);
+        PRICE_MAP.put(PRODUCT_NAME_2, 30.0);
+        PRICE_MAP.put(PRODUCT_NAME_3, 15.0);
 
-        AMOUNT_MAP.put(PRODUCT_NAME_1, 5); // product 1, количество 5 шт.
-        AMOUNT_MAP.put(PRODUCT_NAME_2, 3); // product 2, количество 3 шт.
-        AMOUNT_MAP.put(PRODUCT_NAME_3, 1); // product 3, количество 1 шт.
+        AMOUNT_MAP.put(PRODUCT_NAME_1, 5);
+        AMOUNT_MAP.put(PRODUCT_NAME_2, 3);
+        AMOUNT_MAP.put(PRODUCT_NAME_3, 1);
     }
 
     @Nested

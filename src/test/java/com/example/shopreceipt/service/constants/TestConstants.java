@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// TODO: перенести константы в main в класс Constants
 public class TestConstants {
 
     public static final String PRODUCT_NAME_1 = "product 1";
