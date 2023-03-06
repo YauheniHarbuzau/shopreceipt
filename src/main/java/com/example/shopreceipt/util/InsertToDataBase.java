@@ -18,22 +18,19 @@ import static com.example.shopreceipt.constants.Constants.INSERT_PRODUCT;
  */
 @Component
 @Configuration
-@PropertySource("application.properties")
+@PropertySource("application.yml")
 public class InsertToDataBase {
 
     private Connection connection;
 
     @Value("${spring.datasource.url}")
     private String url;
-
     @Value("${spring.datasource.username}")
     private String username;
-
     @Value("${spring.datasource.password}")
     private String password;
 
     public void insertData() {
-
         saveProduct("хлеб", 2.0, false);
         saveProduct("батон", 2.5, true);
         saveProduct("мука", 1.5, false);

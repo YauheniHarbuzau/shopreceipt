@@ -90,12 +90,9 @@
   [ShopreceiptApplication](src/main/java/com/example/shopreceipt/ShopreceiptApplication.java "ShopreceiptApplication.java")
 - Реализованы REST-контроллеры для поиска всех товаров и платежных карт, поиска по *ID*, сохранения, удаления по *ID*
 - Реализованы тесты
-  [ProductServiceTest](src/test/java/com/example/shopreceipt/ProductServiceTest.java "ProductServiceTest.java"),
-  [CardServiceTest](src/test/java/com/example/shopreceipt/CardServiceTest.java "CardServiceTest.java"),
-  [ReceiptServiceTest](src/test/java/com/example/shopreceipt/ReceiptServiceTest.java "ReceiptServiceTest.java")
 
 *Информация для подключения к базе данных (*url*, *username*, *password*) находится в
-[application.properties](src/main/resources/application.properties "application.properties").</br>
+[application.yml](src/main/resources/application.yml "application.yml").</br>
 Автозаполнение базы данных происходит в классе
 [InsertToDataBase](src/main/java/com/example/shopreceipt/util/InsertToDataBase.java "InsertToDataBase.java").
 
