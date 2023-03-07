@@ -24,6 +24,7 @@ dependencies {
     implementation 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
+    implementation 'org.jdom:jdom2:2.0.6.1'
 }
 
 tasks.named('test') {
