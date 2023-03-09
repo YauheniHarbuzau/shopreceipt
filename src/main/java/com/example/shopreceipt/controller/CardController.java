@@ -2,7 +2,10 @@ package com.example.shopreceipt.controller;
 
 import com.example.shopreceipt.entity.Card;
 import com.example.shopreceipt.service.CardService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +23,7 @@ import java.util.List;
  */
 @AllArgsConstructor
 @RestController
+@Validated
 @RequestMapping("/example")
 public class CardController {
 
@@ -31,17 +35,17 @@ public class CardController {
     }
 
     @GetMapping("/cards/{id}")
-    public Card getById(@PathVariable("id") Long id) {
+    public Card getById(@PathVariable("id") @NotNull Long id) {
         return cardService.getById(id);
     }
 
     @PostMapping("/cards")
-    public void save(@RequestBody Card card) {
+    public void save(@RequestBody @Valid Card card) {
         cardService.save(card);
     }
 
     @DeleteMapping("/cards/{id}")
-    public void deleteById(@PathVariable("id") Long id) {
+    public void deleteById(@PathVariable("id") @NotNull Long id) {
         cardService.deleteById(id);
     }
 }
