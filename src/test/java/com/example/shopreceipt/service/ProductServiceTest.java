@@ -18,15 +18,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static com.example.shopreceipt.service.constants.TestConstants.PRODUCT_NAME_1;
-import static com.example.shopreceipt.service.constants.TestConstants.PRODUCT_NAME_2;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -47,8 +44,8 @@ class ProductServiceTest {
 
     @BeforeEach
     void setUp() {
-        product1 = ProductTestBuilder.aProduct().withId(1L).withName(PRODUCT_NAME_1).withPrice(5.0).withPromotion(false).build();
-        product2 = ProductTestBuilder.aProduct().withId(2L).withName(PRODUCT_NAME_2).build();
+        product1 = ProductTestBuilder.aProduct().withId(1L).withName("product 1").withPrice(5.0).withPromotion(false).build();
+        product2 = ProductTestBuilder.aProduct().withId(2L).withName("product 2").build();
         product3 = ProductTestBuilder.aProduct().withId(3L).withPromotion(true).build();
     }
 
@@ -57,7 +54,7 @@ class ProductServiceTest {
         @Test
         void checkGetAllShouldCalledRepositoryMethod() {
             productService.getAll();
-            verify(productRepository, times(1)).findAll();
+            verify(productRepository).findAll();
         }
 
         @Test
@@ -111,14 +108,14 @@ class ProductServiceTest {
     @Test
     void checkSaveShouldCalledRepositoryMethod() {
         productService.save(product1);
-        verify(productRepository, times(1)).save(product1);
+        verify(productRepository).save(product1);
     }
 
     @ParameterizedTest
     @ValueSource(longs = {1L, 2L, 3L})
     void checkDeleteByIdShouldCalledRepositoryMethod(long argument) {
         productService.deleteById(argument);
-        verify(productRepository, times(1)).deleteById(argument);
+        verify(productRepository).deleteById(argument);
     }
 
     @Nested
@@ -128,8 +125,8 @@ class ProductServiceTest {
             when(productRepository.findById(1L)).thenReturn(Optional.of(product1));
             when(productRepository.findById(2L)).thenReturn(Optional.of(product2));
             assertAll(
-                    () -> assertEquals(PRODUCT_NAME_1, productService.getProductName(1L)),
-                    () -> assertNotEquals(PRODUCT_NAME_1, productService.getProductName(2L))
+                    () -> assertEquals("product 1", productService.getProductName(1L)),
+                    () -> assertNotEquals("product 1", productService.getProductName(2L))
             );
         }
 

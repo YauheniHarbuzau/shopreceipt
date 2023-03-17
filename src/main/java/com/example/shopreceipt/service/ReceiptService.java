@@ -187,9 +187,7 @@ public class ReceiptService {
      * @return List<String>
      */
     public List<String> generateFullReceipt(String source) {
-
         DecimalFormat dF = new DecimalFormat("0.00");
-
         var priceMap = getPriceMap(source);
         var amountMap = getAmountMap(source);
         var fullPrice = dF.format(getFullPrice(priceMap));
@@ -197,7 +195,6 @@ public class ReceiptService {
         var totalPrice = dF.format(getTotalPrice(priceMap, source));
 
         List<String> receiptList = new ArrayList<>(priceMap.size() + 7);
-
         receiptList.add(LINE_SEPARATION);
         for (Map.Entry<String, Double> entry : priceMap.entrySet()) {
             receiptList.add(

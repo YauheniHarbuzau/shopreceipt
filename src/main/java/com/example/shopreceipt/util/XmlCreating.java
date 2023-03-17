@@ -13,10 +13,14 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
 
+import static com.example.shopreceipt.constants.Constants.XML_CARDS;
+import static com.example.shopreceipt.constants.Constants.XML_PRODUCTS;
+
+/**
+ * Class for creating xml files
+ */
 public class XmlCreating {
 
-    private static final String XML_PRODUCTS = "products-response-info.xml";
-    private static final String XML_CARDS = "cards-response-info.xml";
     private static Document document = new Document();
     private static Element products = new Element("products");
     private static Element cards = new Element("cards");

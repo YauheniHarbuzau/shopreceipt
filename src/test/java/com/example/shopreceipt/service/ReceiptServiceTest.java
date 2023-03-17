@@ -14,19 +14,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import static com.example.shopreceipt.service.constants.TestConstants.AMOUNT_MAP;
-import static com.example.shopreceipt.service.constants.TestConstants.MAP_LONG_INT;
-import static com.example.shopreceipt.service.constants.TestConstants.PRICE_MAP;
-import static com.example.shopreceipt.service.constants.TestConstants.PRODUCT_NAME_1;
-import static com.example.shopreceipt.service.constants.TestConstants.PRODUCT_NAME_2;
-import static com.example.shopreceipt.service.constants.TestConstants.PRODUCT_NAME_3;
-import static com.example.shopreceipt.service.constants.TestConstants.RECEIPT_LIST_1;
-import static com.example.shopreceipt.service.constants.TestConstants.RECEIPT_LIST_2;
-import static com.example.shopreceipt.service.constants.TestConstants.SOURCE_LINE_1;
-import static com.example.shopreceipt.service.constants.TestConstants.SOURCE_LINE_2;
-import static com.example.shopreceipt.service.constants.TestConstants.SOURCE_LINE_3;
+import static com.example.shopreceipt.constants.Constants.RECEIPT_LIST_1;
+import static com.example.shopreceipt.constants.Constants.RECEIPT_LIST_2;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -56,24 +49,12 @@ class ReceiptServiceTest {
 
     @BeforeEach
     void setUp() {
-        product1 = ProductTestBuilder.aProduct().withId(1L).withName(PRODUCT_NAME_1).withPrice(5.0).withPromotion(false).build();
-        product2 = ProductTestBuilder.aProduct().withId(2L).withName(PRODUCT_NAME_2).withPrice(10.0).withPromotion(true).build();
-        product3 = ProductTestBuilder.aProduct().withId(3L).withName(PRODUCT_NAME_3).withPrice(15.0).withPromotion(true).build();
+        product1 = ProductTestBuilder.aProduct().withId(1L).withName("product 1").withPrice(5.0).withPromotion(false).build();
+        product2 = ProductTestBuilder.aProduct().withId(2L).withName("product 2").withPrice(10.0).withPromotion(true).build();
+        product3 = ProductTestBuilder.aProduct().withId(3L).withName("product 3").withPrice(15.0).withPromotion(true).build();
 
         card1 = CardTestBuilder.aCard().withId(1L).withNumber(1234).withDiscount(10.0).build();
         card2 = CardTestBuilder.aCard().withId(2L).withNumber(1111).withDiscount(20.0).build();
-
-        MAP_LONG_INT.put(1L, 5);
-        MAP_LONG_INT.put(2L, 3);
-        MAP_LONG_INT.put(3L, 1);
-
-        PRICE_MAP.put(PRODUCT_NAME_1, 25.0);
-        PRICE_MAP.put(PRODUCT_NAME_2, 30.0);
-        PRICE_MAP.put(PRODUCT_NAME_3, 15.0);
-
-        AMOUNT_MAP.put(PRODUCT_NAME_1, 5);
-        AMOUNT_MAP.put(PRODUCT_NAME_2, 3);
-        AMOUNT_MAP.put(PRODUCT_NAME_3, 1);
     }
 
     @Nested
@@ -81,8 +62,8 @@ class ReceiptServiceTest {
         @Test
         void checkIsValidShouldReturnTrue() {
             assertAll(
-                    () -> assertTrue(receiptService.isValid(SOURCE_LINE_1)),
-                    () -> assertTrue(receiptService.isValid(SOURCE_LINE_2))
+                    () -> assertTrue(receiptService.isValid("1-5 2-3 3-1")),
+                    () -> assertTrue(receiptService.isValid("1-5 2-3 3-1 card-1234"))
             );
         }
 
@@ -113,16 +94,26 @@ class ReceiptServiceTest {
 
     @Test
     void checkSourceToMapShouldReturnMap() {
+        Map<Long, Integer> mapLongInt = new HashMap<>(3);
+        mapLongInt.put(1L, 5);
+        mapLongInt.put(2L, 3);
+        mapLongInt.put(3L, 1);
+
         when(productService.getAll()).thenReturn(List.of(product1, product2, product3));
         assertAll(
-                () -> assertEquals(MAP_LONG_INT, receiptService.sourceToMap(SOURCE_LINE_1)),
-                () -> assertEquals(MAP_LONG_INT, receiptService.sourceToMap(SOURCE_LINE_2)),
-                () -> assertNotEquals(MAP_LONG_INT, receiptService.sourceToMap(SOURCE_LINE_3))
+                () -> assertEquals(mapLongInt, receiptService.sourceToMap("1-5 2-3 3-1")),
+                () -> assertEquals(mapLongInt, receiptService.sourceToMap("1-5 2-3 3-1 card-1234")),
+                () -> assertNotEquals(mapLongInt, receiptService.sourceToMap("1-7 2-3 3-1"))
         );
     }
 
     @Test
     void checkGetPriceMapShouldReturnMap() {
+        Map<String, Double> priceMap = new HashMap<>(3);
+        priceMap.put("product 1", 25.0);
+        priceMap.put("product 2", 30.0);
+        priceMap.put("product 3", 15.0);
+
         when(productService.getAll()).thenReturn(List.of(product1, product2, product3));
         when(productService.getProductName(1L)).thenReturn(product1.getName());
         when(productService.getProductName(2L)).thenReturn(product2.getName());
@@ -131,40 +122,55 @@ class ReceiptServiceTest {
         when(productService.getProductPrice(2L)).thenReturn(product2.getPrice());
         when(productService.getProductPrice(3L)).thenReturn(product3.getPrice());
         assertAll(
-                () -> assertEquals(PRICE_MAP, receiptService.getPriceMap(SOURCE_LINE_1)),
-                () -> assertEquals(PRICE_MAP, receiptService.getPriceMap(SOURCE_LINE_2)),
-                () -> assertNotEquals(PRICE_MAP, receiptService.getPriceMap(SOURCE_LINE_3))
+                () -> assertEquals(priceMap, receiptService.getPriceMap("1-5 2-3 3-1")),
+                () -> assertEquals(priceMap, receiptService.getPriceMap("1-5 2-3 3-1 card-1234")),
+                () -> assertNotEquals(priceMap, receiptService.getPriceMap("1-7 2-3 3-1"))
         );
     }
 
     @Test
     void checkGetAmountMapShouldReturnMap() {
+        Map<String, Integer> amountMap = new HashMap<>(3);
+        amountMap.put("product 1", 5);
+        amountMap.put("product 2", 3);
+        amountMap.put("product 3", 1);
+
         when(productService.getAll()).thenReturn(List.of(product1, product2, product3));
         when(productService.getProductName(1L)).thenReturn(product1.getName());
         when(productService.getProductName(2L)).thenReturn(product2.getName());
         when(productService.getProductName(3L)).thenReturn(product3.getName());
         assertAll(
-                () -> assertEquals(AMOUNT_MAP, receiptService.getAmountMap(SOURCE_LINE_1)),
-                () -> assertNotEquals(AMOUNT_MAP, receiptService.getAmountMap(SOURCE_LINE_3))
+                () -> assertEquals(amountMap, receiptService.getAmountMap("1-5 2-3 3-1")),
+                () -> assertNotEquals(amountMap, receiptService.getAmountMap("1-7 2-3 3-1"))
         );
     }
 
     @Test
     void checkCountPromotionProductShouldReturnCount() {
+        Map<Long, Integer> mapLongInt = new HashMap<>(3);
+        mapLongInt.put(1L, 5);
+        mapLongInt.put(2L, 3);
+        mapLongInt.put(3L, 1);
+
         when(productService.getProductPromotion(1L)).thenReturn(product1.getPromotion());
         when(productService.getProductPromotion(2L)).thenReturn(product2.getPromotion());
         when(productService.getProductPromotion(3L)).thenReturn(product3.getPromotion());
         assertAll(
-                () -> assertEquals(2, receiptService.countPromotionProduct(MAP_LONG_INT)),
-                () -> assertNotEquals(3, receiptService.countPromotionProduct(MAP_LONG_INT))
+                () -> assertEquals(2, receiptService.countPromotionProduct(mapLongInt)),
+                () -> assertNotEquals(3, receiptService.countPromotionProduct(mapLongInt))
         );
     }
 
     @Test
     void checkGetFullPriceShouldReturnPrice() {
+        Map<String, Double> priceMap = new HashMap<>(3);
+        priceMap.put("product 1", 25.0);
+        priceMap.put("product 2", 30.0);
+        priceMap.put("product 3", 15.0);
+
         assertAll(
-                () -> assertEquals(70.0, receiptService.getFullPrice(PRICE_MAP)),
-                () -> assertNotEquals(70.1, receiptService.getFullPrice(PRICE_MAP))
+                () -> assertEquals(70.0, receiptService.getFullPrice(priceMap)),
+                () -> assertNotEquals(70.1, receiptService.getFullPrice(priceMap))
         );
     }
 
@@ -188,20 +194,25 @@ class ReceiptServiceTest {
         when(cardService.getAll()).thenReturn(List.of(card1, card2));
         when(cardService.getDiscountByNumber(1234)).thenReturn(10.0);
         assertAll(
-                () -> assertEquals(10.0, receiptService.getCardDiscount(SOURCE_LINE_2)),
-                () -> assertNotEquals(15.0, receiptService.getCardDiscount(SOURCE_LINE_2))
+                () -> assertEquals(10.0, receiptService.getCardDiscount("1-5 2-3 3-1 card-1234")),
+                () -> assertNotEquals(15.0, receiptService.getCardDiscount("1-5 2-3 3-1 card-1234"))
         );
     }
 
     @Test
     void checkGetTotalPriceShouldReturnPrice() {
+        Map<String, Double> priceMap = new HashMap<>(3);
+        priceMap.put("product 1", 25.0);
+        priceMap.put("product 2", 30.0);
+        priceMap.put("product 3", 15.0);
+
         when(cardService.getAll()).thenReturn(List.of(card1, card2));
         when(cardService.getDiscountByNumber(1234)).thenReturn(10.0);
         assertAll(
-                () -> assertEquals(63.0, receiptService.getTotalPrice(PRICE_MAP, SOURCE_LINE_2)),
-                () -> assertNotEquals(63.1, receiptService.getTotalPrice(PRICE_MAP, SOURCE_LINE_2)),
-                () -> assertEquals(70.0, receiptService.getTotalPrice(PRICE_MAP, SOURCE_LINE_1)),
-                () -> assertNotEquals(70.1, receiptService.getTotalPrice(PRICE_MAP, SOURCE_LINE_1))
+                () -> assertEquals(63.0, receiptService.getTotalPrice(priceMap, "1-5 2-3 3-1 card-1234")),
+                () -> assertNotEquals(63.1, receiptService.getTotalPrice(priceMap, "1-5 2-3 3-1 card-1234")),
+                () -> assertEquals(70.0, receiptService.getTotalPrice(priceMap, "1-5 2-3 3-1")),
+                () -> assertNotEquals(70.1, receiptService.getTotalPrice(priceMap, "1-5 2-3 3-1"))
         );
     }
 
@@ -217,8 +228,8 @@ class ReceiptServiceTest {
         when(cardService.getAll()).thenReturn(List.of(card1, card2));
         when(cardService.getDiscountByNumber(1234)).thenReturn(10.0);
         assertAll(
-                () -> assertEquals(RECEIPT_LIST_1, receiptService.generateFullReceipt(SOURCE_LINE_1)),
-                () -> assertEquals(RECEIPT_LIST_2, receiptService.generateFullReceipt(SOURCE_LINE_2))
+                () -> assertEquals(RECEIPT_LIST_1, receiptService.generateFullReceipt("1-5 2-3 3-1")),
+                () -> assertEquals(RECEIPT_LIST_2, receiptService.generateFullReceipt("1-5 2-3 3-1 card-1234"))
         );
     }
 }

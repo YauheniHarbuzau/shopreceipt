@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -54,7 +53,7 @@ class CardServiceTest {
         @Test
         void checkGetAllShouldCalledRepositoryMethod() {
             cardService.getAll();
-            verify(cardRepository, times(1)).findAll();
+            verify(cardRepository).findAll();
         }
 
         @Test
@@ -108,14 +107,14 @@ class CardServiceTest {
     @Test
     void checkSaveShouldCalledRepositoryMethod() {
         cardService.save(card1);
-        verify(cardRepository, times(1)).save(card1);
+        verify(cardRepository).save(card1);
     }
 
     @ParameterizedTest
     @ValueSource(longs = {1L, 2L, 3L})
     void checkDeleteByIdShouldCalledRepositoryMethod(long argument) {
         cardService.deleteById(argument);
-        verify(cardRepository, times(1)).deleteById(argument);
+        verify(cardRepository).deleteById(argument);
     }
 
     @Nested
