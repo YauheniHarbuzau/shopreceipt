@@ -2,7 +2,6 @@ package com.example.shopreceipt.util;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
@@ -18,7 +17,6 @@ import static com.example.shopreceipt.constants.Constants.INSERT_PRODUCT;
  */
 @Component
 @Configuration
-@PropertySource("application.yml")
 public class InsertToDataBase {
 
     private Connection connection;
@@ -31,18 +29,18 @@ public class InsertToDataBase {
     private String password;
 
     public void insertData() {
-        saveProduct("хлеб", 2.0, false);
-        saveProduct("батон", 2.5, true);
-        saveProduct("мука", 1.5, false);
-        saveProduct("яйцо кур.", 2.5, true);
-        saveProduct("филе кур.", 4.5, true);
-        saveProduct("свинина", 6.5, false);
-        saveProduct("говядина", 7.5, false);
-        saveProduct("минтай с/м", 6.0, false);
-        saveProduct("камбала х/к", 8.0, true);
-        saveProduct("пит. вода", 1.0, false);
-        saveProduct("газ. вода", 1.5, false);
-        saveProduct("сок", 1.5, true);
+        saveProduct("bread", 2.0, false);
+        saveProduct("long loaf", 2.5, true);
+        saveProduct("flour", 1.5, false);
+        saveProduct("eggs", 2.5, true);
+        saveProduct("chicken", 4.5, true);
+        saveProduct("pork", 6.5, false);
+        saveProduct("beef", 7.5, false);
+        saveProduct("pollock", 6.0, false);
+        saveProduct("flounder", 8.0, true);
+        saveProduct("water", 1.0, false);
+        saveProduct("soda", 1.5, false);
+        saveProduct("juice", 1.5, true);
 
         saveCard(1234, 5.0);
         saveCard(1111, 10.0);

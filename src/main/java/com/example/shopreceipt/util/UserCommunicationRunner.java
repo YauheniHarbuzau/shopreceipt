@@ -5,12 +5,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
-
-import static com.example.shopreceipt.constants.Constants.FILE_NAME;
-import static com.example.shopreceipt.constants.Constants.FILE_PATH;
 
 /**
  * Class for receiving data from the user and generating a receipt
@@ -21,6 +17,7 @@ public class UserCommunicationRunner implements CommandLineRunner {
 
     private final ReceiptService receiptService;
     private final InsertToDataBase insertToDataBasel;
+    private final PdfCreating pdfCreating;
 
     @Override
     public void run(String... args) throws Exception {
@@ -40,17 +37,13 @@ public class UserCommunicationRunner implements CommandLineRunner {
     }
 
     /**
-     * Вывод кассового чека в консоль и в файл
+     * Вывод кассового чека в консоль и в файл pdf
      *
      * @param line переданная пользователем строка с набором параметров (String)
      */
     private void getReceipt(String line) throws IOException {
         var list = receiptService.generateFullReceipt(line);
-        FileWriter fileWriter = new FileWriter(FILE_PATH + FILE_NAME);
-        for (String str : list) {
-            System.out.println(str.trim());
-            fileWriter.write(str.trim() + System.lineSeparator());
-        }
-        fileWriter.close();
+        pdfCreating.addPdf(line);
+        list.forEach(System.out::println);
     }
 }

@@ -15,9 +15,8 @@ public class Constants {
     public static final String LINE_FORMAT = "%-15s %15s";
     public static final String LINE_SEPARATION = "******************************";
 
-    public static final String FILE_PATH = "D:/";
-    public static final String FILE_NAME = "receipt.txt";
-
+    public static final String FILE_PATH = "";
+    public static final String PDF_RECEIPT = "receipt.pdf";
     public static final String XML_PRODUCTS = "products-response-info.xml";
     public static final String XML_CARDS = "cards-response-info.xml";
 

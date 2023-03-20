@@ -13,8 +13,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
-import static com.example.shopreceipt.util.XmlCreating.addXml;
-
 /**
  * AOP for the {@link ProductRepository}
  *
@@ -43,7 +41,7 @@ public class ProductAspect {
         }
         Optional<Product> product = (Optional<Product>) joinPoint.proceed();
         product.ifPresent(c -> cache.put(c.getId(), c));
-        addXml(product.orElseThrow(), "findById");
+        // addXml(product.orElseThrow(), "findById"); // Для генерации xml файла
         return product;
     }
 

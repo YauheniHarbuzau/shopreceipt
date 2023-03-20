@@ -206,10 +206,10 @@ public class ReceiptService {
             );
         }
         receiptList.add(LINE_SEPARATION);
-        receiptList.add(String.format(LINE_FORMAT, "сумма", fullPrice + "$"));
-        receiptList.add(String.format(LINE_FORMAT, "скидка", discount + "%"));
+        receiptList.add(String.format(LINE_FORMAT, "full price", fullPrice + "$"));
+        receiptList.add(String.format(LINE_FORMAT, "discount", discount + "%"));
         receiptList.add(LINE_SEPARATION);
-        receiptList.add(String.format(LINE_FORMAT, "итого к оплате", totalPrice + "$"));
+        receiptList.add(String.format(LINE_FORMAT, "total price", totalPrice + "$"));
         receiptList.add(LINE_SEPARATION);
         return receiptList;
     }
