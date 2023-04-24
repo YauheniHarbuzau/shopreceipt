@@ -32,18 +32,17 @@ public class UserCommunicationRunner implements CommandLineRunner {
      */
     private String userInput() {
         Scanner in = new Scanner(System.in);
-        System.out.println("Введите данные");
+        System.out.println("Make an input:");
         return in.nextLine();
     }
 
     /**
      * Вывод кассового чека в консоль и в файл pdf
      *
-     * @param line переданная пользователем строка с набором параметров (String)
+     * @param source переданная пользователем строка с набором параметров (String)
      */
-    private void getReceipt(String line) throws IOException {
-        var list = receiptService.generateFullReceipt(line);
-        pdfCreating.addPdf(line);
-        list.forEach(System.out::println);
+    private void getReceipt(String source) throws IOException {
+        pdfCreating.addPdf(source);
+        receiptService.getReceiptLineList(source).forEach(System.out::println);
     }
 }

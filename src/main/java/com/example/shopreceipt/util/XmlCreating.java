@@ -14,8 +14,8 @@ import java.util.Date;
 import java.util.Optional;
 
 import static com.example.shopreceipt.constants.Constants.FILE_PATH;
-import static com.example.shopreceipt.constants.Constants.XML_CARDS;
-import static com.example.shopreceipt.constants.Constants.XML_PRODUCTS;
+import static com.example.shopreceipt.constants.Constants.XML_CARDS_FILE;
+import static com.example.shopreceipt.constants.Constants.XML_PRODUCTS_FILE;
 
 /**
  * Class for creating xml files
@@ -38,7 +38,7 @@ public class XmlCreating {
 
             products.addContent(child);
             document.setContent(products);
-            writeFile(FILE_PATH + XML_PRODUCTS);
+            writeFile(FILE_PATH + XML_PRODUCTS_FILE);
         }
         if (obj instanceof Card card) {
             Element child = new Element("card");
@@ -50,7 +50,7 @@ public class XmlCreating {
 
             cards.addContent(child);
             document.setContent(cards);
-            writeFile(FILE_PATH + XML_CARDS);
+            writeFile(FILE_PATH + XML_CARDS_FILE);
         }
     }
 

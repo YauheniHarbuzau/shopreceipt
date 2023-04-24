@@ -1,5 +1,7 @@
 package com.example.shopreceipt.service;
 
+import com.example.shopreceipt.entity.Receipt;
+import com.example.shopreceipt.entity.ReceiptProduct;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -9,8 +11,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.example.shopreceipt.constants.Constants.LINE_FORMAT;
-import static com.example.shopreceipt.constants.Constants.LINE_SEPARATION;
+import static com.example.shopreceipt.constants.Constants.RECEIPT_HEAD;
+import static com.example.shopreceipt.constants.Constants.RECEIPT_LINE_FORMAT_1;
+import static com.example.shopreceipt.constants.Constants.RECEIPT_LINE_FORMAT_2;
+import static com.example.shopreceipt.constants.Constants.RECEIPT_LINE_SEPARATION;
 
 /**
  * Service for the Receipt
@@ -29,8 +33,7 @@ public class ReceiptService {
      * @return булевое значение соответствует(true)/не соответствует(false)
      */
     public boolean isValid(String source) {
-        return source.matches("((([0-9]*)([-])([0-9]*)[ ])*)([0-9]*)([-])([0-9]*)") ||
-                source.matches("((([0-9]*)([-])([0-9]*)[ ])*)(card-)([0-9]*)");
+        return source.matches("^(\\d+-\\d+ )*\\d+-\\d+$") || source.matches("^(\\d+-\\d+ )*card-\\d+$");
     }
 
     /**
@@ -44,17 +47,27 @@ public class ReceiptService {
     }
 
     /**
+     * Проверка есть ли платежная карта в базе данных
+     *
+     * @param number номер платежной карты (int)
+     * @return булевое значение да(true)/нет(false)
+     */
+    public boolean cardIsPresent(int number) {
+        return cardService.getAll().stream().anyMatch(card -> card.getNumber() == number);
+    }
+
+    /**
      * Получение из строки Map с ID товара и его количеством
      *
      * @param source строка с набором параметров (String)
      * @return Map<Long, Integer>
      */
     public Map<Long, Integer> sourceToMap(String source) {
-        String[] array = source.split("[ ]");
+        String[] array = source.split(" ");
         Map<Long, Integer> map = new HashMap<>(array.length);
         Map<Long, Integer> newMap = new HashMap<>();
         for (String str : array) {
-            if (str.matches("(([0-9]*)([-])([0-9]*)*)")) {
+            if (str.matches("^\\d+-\\d+$")) {
                 map.put(
                         Long.parseLong(str.substring(0, str.indexOf('-'))),
                         Integer.parseInt(str.substring(str.indexOf('-') + 1))
@@ -70,86 +83,48 @@ public class ReceiptService {
     }
 
     /**
-     * Получение из строки Map с наименованием товара и его ценой с учетом количества
+     * Получение списка товаров в кассовом чеке (наименование, цена, акция и т.д.)
      *
      * @param source строка с набором параметров (String)
-     * @return Map<String, Double>
+     * @return список товаров в кассовом чеке
      */
-    public Map<String, Double> getPriceMap(String source) {
-        Map<String, Double> priceMap = new HashMap<>();
-        if (isValid(source)) {
-            Map<Long, Integer> map = sourceToMap(source);
-            for (Map.Entry<Long, Integer> item : map.entrySet()) {
-                if (countPromotionProduct(map) >= 5) {
-                    priceMap.put(
-                            productService.getProductName(item.getKey()),
-                            (productService.getProductPrice(item.getKey()) * item.getValue()) * 0.9
-                    );
-                } else {
-                    priceMap.put(
-                            productService.getProductName(item.getKey()),
-                            productService.getProductPrice(item.getKey()) * item.getValue()
-                    );
+    public List<ReceiptProduct> getReceiptProducts(String source) {
+        var longIntMap = sourceToMap(source);
+        List<ReceiptProduct> receiptProducts = new ArrayList<>(longIntMap.size());
+        for (Map.Entry<Long, Integer> item : longIntMap.entrySet()) {
+            receiptProducts.add(new ReceiptProduct(productService.getById(item.getKey()), item.getValue()));
+        }
+        return getReceiptProductsWithPromotion(receiptProducts);
+    }
+
+    /**
+     * Корректировка списка товаров с учетом акционных товаров
+     * (при наличии 5 позиций акционных товаров на них будет выдана скидка 10%)
+     *
+     * @param receiptProducts список товаров в кассовом чеке
+     * @return список товаров в кассовом чеке с учетом скидки по акции
+     */
+    public List<ReceiptProduct> getReceiptProductsWithPromotion(List<ReceiptProduct> receiptProducts) {
+        var count = receiptProducts.stream().filter(ReceiptProduct::getPromotion).count();
+        if (count >= 5) {
+            for (ReceiptProduct receiptProduct : receiptProducts) {
+                if (receiptProduct.getPromotion()) {
+                    var fullPrice = receiptProduct.getFullPrice();
+                    receiptProduct.setFullPrice(fullPrice * 0.9);
                 }
             }
         }
-        return priceMap;
-    }
-
-    /**
-     * Получение из строки Map с наименованием товара и его количеством
-     *
-     * @param source строка с набором параметров (String)
-     * @return Map<String, Integer>
-     */
-    public Map<String, Integer> getAmountMap(String source) {
-        Map<String, Integer> amountMap = new HashMap<>();
-        if (isValid(source)) {
-            Map<Long, Integer> map = sourceToMap(source);
-            for (Map.Entry<Long, Integer> item : map.entrySet()) {
-                amountMap.put(
-                        productService.getProductName(item.getKey()),
-                        item.getValue()
-                );
-            }
-        }
-        return amountMap;
-    }
-
-    /**
-     * Получение количества акционных товаров
-     *
-     * @param map с ID товара и его количеством
-     * @return количество акционных товаров (int)
-     */
-    public int countPromotionProduct(Map<Long, Integer> map) {
-        int count = 0;
-        for (Long id : map.keySet()) {
-            if (productService.getProductPromotion(id)) {
-                count++;
-            }
-        }
-        return count;
+        return receiptProducts;
     }
 
     /**
      * Получение полной цены кассового чека
      *
-     * @param map с наименованием товара и его ценой с учетом количества
+     * @param receiptProducts список товаров в кассовом чеке
      * @return полная цена (double)
      */
-    public double getFullPrice(Map<String, Double> map) {
-        return map.values().stream().mapToDouble(Double::doubleValue).sum();
-    }
-
-    /**
-     * Проверка есть ли платежная карта в базе данных
-     *
-     * @param number номер платежной карты (int)
-     * @return булевое значение да(true)/нет(false)
-     */
-    public boolean cardIsPresent(int number) {
-        return cardService.getAll().stream().anyMatch(card -> card.getNumber() == number);
+    public double getFullPrice(List<ReceiptProduct> receiptProducts) {
+        return receiptProducts.stream().mapToDouble(ReceiptProduct::getFullPrice).sum();
     }
 
     /**
@@ -170,47 +145,57 @@ public class ReceiptService {
     /**
      * Получение итоговой цены кассового чека с учетом скидки платежной карты
      *
-     * @param map    с наименованием товара и его ценой с учетом количества
-     * @param source строка с набором параметров (String)
+     * @param receiptProducts список товаров в кассовом чеке
+     * @param source          строка с набором параметров (String)
      * @return итоговая цена (double)
      */
-    public double getTotalPrice(Map<String, Double> map, String source) {
+    public double getTotalPrice(List<ReceiptProduct> receiptProducts, String source) {
+        var fullPrice = getFullPrice(receiptProducts);
         var cardDiscount = getCardDiscount(source);
-        var fullPrice = getFullPrice(map);
         return cardDiscount != 0 ? fullPrice - (fullPrice / 100 * cardDiscount) : fullPrice;
     }
 
     /**
-     * Формирование кассового чека в виде набора строк
+     * Формирование кассового чека
      *
      * @param source строка с набором параметров (String)
-     * @return List<String>
+     * @return кассовый чек
      */
-    public List<String> generateFullReceipt(String source) {
-        DecimalFormat dF = new DecimalFormat("0.00");
-        var priceMap = getPriceMap(source);
-        var amountMap = getAmountMap(source);
-        var fullPrice = dF.format(getFullPrice(priceMap));
-        var discount = dF.format(getCardDiscount(source));
-        var totalPrice = dF.format(getTotalPrice(priceMap, source));
+    public Receipt getReceipt(String source) {
+        var receiptProducts = getReceiptProducts(source);
+        var fullPrice = getFullPrice(receiptProducts);
+        var cardDiscount = getCardDiscount(source);
+        var totalPrice = getTotalPrice(receiptProducts, source);
+        return new Receipt(receiptProducts, fullPrice, cardDiscount, totalPrice);
+    }
 
-        List<String> receiptList = new ArrayList<>(priceMap.size() + 7);
-        receiptList.add(LINE_SEPARATION);
-        for (Map.Entry<String, Double> entry : priceMap.entrySet()) {
-            receiptList.add(
-                    String.format(
-                            LINE_FORMAT,
-                            entry.getKey() + "  x" + amountMap.get(entry.getKey()),
-                            dF.format(entry.getValue()) + "$"
-                    )
-            );
+    /**
+     * Вывод кассового чека в консоль
+     *
+     * @param source строка с набором параметров (String)
+     */
+    public List<String> getReceiptLineList(String source) {
+        DecimalFormat dF = new DecimalFormat("0.00");
+        var receipt = getReceipt(source);
+        var receiptProducts = receipt.getReceiptProducts();
+
+        List<String> receiptLineList = new ArrayList<>(receiptProducts.size() + 7);
+        receiptLineList.add(RECEIPT_HEAD);
+        receiptLineList.add(RECEIPT_LINE_SEPARATION);
+        for (ReceiptProduct receiptProduct : receiptProducts) {
+            receiptLineList.add(String.format(
+                    RECEIPT_LINE_FORMAT_1,
+                    receiptProduct.getName(),
+                    dF.format(receiptProduct.getPrice()) + "$",
+                    "x" + receiptProduct.getAmount(),
+                    dF.format(receiptProduct.getFullPrice()) + "$"
+            ));
         }
-        receiptList.add(LINE_SEPARATION);
-        receiptList.add(String.format(LINE_FORMAT, "full price", fullPrice + "$"));
-        receiptList.add(String.format(LINE_FORMAT, "discount", discount + "%"));
-        receiptList.add(LINE_SEPARATION);
-        receiptList.add(String.format(LINE_FORMAT, "total price", totalPrice + "$"));
-        receiptList.add(LINE_SEPARATION);
-        return receiptList;
+        receiptLineList.add(RECEIPT_LINE_SEPARATION);
+        receiptLineList.add(String.format(RECEIPT_LINE_FORMAT_2, "full price:", dF.format(receipt.getFullPrice()) + "$"));
+        receiptLineList.add(String.format(RECEIPT_LINE_FORMAT_2, "discount:", dF.format(receipt.getCardDiscount()) + "%"));
+        receiptLineList.add(String.format(RECEIPT_LINE_FORMAT_2, "total price:", dF.format(receipt.getTotalPrice()) + "$"));
+        receiptLineList.add(RECEIPT_LINE_SEPARATION);
+        return receiptLineList;
     }
 }

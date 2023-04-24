@@ -1,5 +1,7 @@
 package com.example.shopreceipt.util;
 
+import com.example.shopreceipt.entity.Receipt;
+import com.example.shopreceipt.entity.ReceiptProduct;
 import com.example.shopreceipt.service.ReceiptService;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
@@ -18,10 +20,9 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Map;
 
 import static com.example.shopreceipt.constants.Constants.FILE_PATH;
-import static com.example.shopreceipt.constants.Constants.PDF_RECEIPT;
+import static com.example.shopreceipt.constants.Constants.PDF_RECEIPT_FILE;
 
 /**
  * Class for creating pdf files
@@ -33,15 +34,10 @@ public class PdfCreating {
     private final ReceiptService receiptService;
 
     public void addPdf(String source) throws IOException {
-        DecimalFormat dF = new DecimalFormat("0.00");
-        var priceMap = receiptService.getPriceMap(source);
-        var amountMap = receiptService.getAmountMap(source);
-        var fullPrice = dF.format(receiptService.getFullPrice(priceMap));
-        var discount = dF.format(receiptService.getCardDiscount(source));
-        var totalPrice = dF.format(receiptService.getTotalPrice(priceMap, source));
+        var receipt = receiptService.getReceipt(source);
 
         PdfReader reader = new PdfReader("resources/pdftemplate/Clevertec_Template.pdf");
-        PdfWriter writer = new PdfWriter(FILE_PATH + PDF_RECEIPT);
+        PdfWriter writer = new PdfWriter(FILE_PATH + PDF_RECEIPT_FILE);
         PdfDocument pdfDoc = new PdfDocument(reader, writer);
         Document doc = new Document(pdfDoc);
 
@@ -50,9 +46,9 @@ public class PdfCreating {
         }
         doc.add(createInfoTable());
         doc.add(new Paragraph("\n"));
-        doc.add(createProductTable(priceMap, amountMap));
+        doc.add(createProductTable(receipt));
         doc.add(new Paragraph("\n"));
-        doc.add(createTotalPriceTable(fullPrice, discount, totalPrice));
+        doc.add(createTotalPriceTable(receipt));
 
         doc.close();
     }
@@ -73,33 +69,42 @@ public class PdfCreating {
         return table;
     }
 
-    private static Table createProductTable(Map<String, Double> priceMap, Map<String, Integer> amountMap) {
-        Table table = new Table(new float[]{200F, 100F, 100F});
+    private static Table createProductTable(Receipt receipt) {
+        Table table = new Table(new float[]{160F, 80F, 80F, 80F});
         table.setHorizontalAlignment(HorizontalAlignment.CENTER);
 
-        table.addCell(putCell("product", 12F, TextAlignment.LEFT));
-        table.addCell(putCell("amount", 12F, TextAlignment.LEFT));
-        table.addCell(putCell("price", 12F, TextAlignment.RIGHT));
-
         DecimalFormat dF = new DecimalFormat("0.00");
-        for (Map.Entry<String, Double> entry : priceMap.entrySet()) {
-            table.addCell(putCell(entry.getKey(), 16F, TextAlignment.LEFT));
-            table.addCell(putCell("x" + amountMap.get(entry.getKey()), 16F, TextAlignment.LEFT));
-            table.addCell(putCell(dF.format(entry.getValue()) + "$", 16F, TextAlignment.RIGHT));
+        var receiptProducts = receipt.getReceiptProducts();
+
+        table.addCell(putCell("product", 12F, TextAlignment.LEFT));
+        table.addCell(putCell("price", 12F, TextAlignment.RIGHT));
+        table.addCell(putCell("amount", 12F, TextAlignment.RIGHT));
+        table.addCell(putCell("full price", 12F, TextAlignment.RIGHT));
+
+        for (ReceiptProduct receiptProduct : receiptProducts) {
+            table.addCell(putCell(receiptProduct.getName(), 16F, TextAlignment.LEFT));
+            table.addCell(putCell(dF.format(receiptProduct.getPrice()) + "$", 16F, TextAlignment.RIGHT));
+            table.addCell(putCell("x" + receiptProduct.getAmount(), 16F, TextAlignment.RIGHT));
+            table.addCell(putCell(dF.format(receiptProduct.getFullPrice()) + "$", 16F, TextAlignment.RIGHT));
         }
 
         return table;
     }
 
-    private static Table createTotalPriceTable(String fullPrice, String discount, String totalPrice) {
-        Table table = new Table(new float[]{300F, 100F});
+    private static Table createTotalPriceTable(Receipt receipt) {
+        Table table = new Table(new float[]{320F, 80F});
         table.setHorizontalAlignment(HorizontalAlignment.CENTER);
+
+        DecimalFormat dF = new DecimalFormat("0.00");
+        var fullPrice = dF.format(receipt.getFullPrice());
+        var cardDiscount = dF.format(receipt.getCardDiscount());
+        var totalPrice = dF.format(receipt.getTotalPrice());
 
         table.addCell(putCell("full price:", 16F, TextAlignment.LEFT));
         table.addCell(putCell(fullPrice + "$", 16F, TextAlignment.RIGHT));
 
-        table.addCell(putCell("discount:", 16F, TextAlignment.LEFT));
-        table.addCell(putCell(discount + "%", 16F, TextAlignment.RIGHT));
+        table.addCell(putCell("card discount:", 16F, TextAlignment.LEFT));
+        table.addCell(putCell(cardDiscount + "%", 16F, TextAlignment.RIGHT));
 
         table.addCell(putCell("total price:", 16F, TextAlignment.LEFT));
         table.addCell(putCell(totalPrice + "$", 16F, TextAlignment.RIGHT));
