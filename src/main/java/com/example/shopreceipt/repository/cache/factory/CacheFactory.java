@@ -14,12 +14,10 @@ public class CacheFactory<K, V> implements Factory<K, V> {
 
     @Override
     public Cache<K, V> initCache(String cacheType, Integer cacheCapacity) {
-        if ("LRU".equals(cacheType)) {
-            return new LRUCache<>(cacheCapacity);
-        } else if ("LFU".equals(cacheType)) {
-            return new LFUCache<>(cacheCapacity);
-        } else {
-            throw new IllegalArgumentException("Only LRU or LFU cache algorithms");
-        }
+        return switch (cacheType) {
+            case "LRU" -> new LRUCache<>(cacheCapacity);
+            case "LFU" -> new LFUCache<>(cacheCapacity);
+            default -> throw new IllegalArgumentException("Only LRU or LFU cache algorithms");
+        };
     }
 }

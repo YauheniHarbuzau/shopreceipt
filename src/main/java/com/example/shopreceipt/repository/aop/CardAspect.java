@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
+import static com.example.shopreceipt.util.XmlCreating.addXml;
+
 /**
  * AOP for the {@link CardRepository}
  *
@@ -41,7 +43,7 @@ public class CardAspect {
         }
         Optional<Card> card = (Optional<Card>) joinPoint.proceed();
         card.ifPresent(c -> cache.put(c.getId(), c));
-        // addXml(card.orElseThrow(), "findById"); // Для генерации xml файла
+        addXml(card.orElseThrow(), "findById");
         return card;
     }
 

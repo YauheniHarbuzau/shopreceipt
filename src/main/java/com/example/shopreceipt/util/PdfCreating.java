@@ -58,9 +58,9 @@ public class PdfCreating {
         table.setHorizontalAlignment(HorizontalAlignment.CENTER);
 
         table.addCell(putBigCell("CASH RECEIPT", 20F, TextAlignment.CENTER, 1, 4));
-        table.addCell(putBigCell("PRODUCTMARKET", 16F, TextAlignment.CENTER, 1, 4));
-        table.addCell(putBigCell("Oslo / Norway", 12F, TextAlignment.CENTER, 1, 4));
-        table.addCell(putBigCell("Tel: 111-000-00", 12F, TextAlignment.CENTER, 1, 4));
+        table.addCell(putBigCell("SUPERMARKET 123", 16F, TextAlignment.CENTER, 1, 4));
+        table.addCell(putBigCell("12, MILKY WAY Galaxy / Earth", 12F, TextAlignment.CENTER, 1, 4));
+        table.addCell(putBigCell("Tel: 123-456-7890", 12F, TextAlignment.CENTER, 1, 4));
         table.addCell(putBigCell("Date:", 12F, TextAlignment.RIGHT, 1, 3));
         table.addCell(putCell(String.valueOf(LocalDate.now()), 12F, TextAlignment.RIGHT));
         table.addCell(putBigCell("Time:", 12F, TextAlignment.RIGHT, 1, 3));

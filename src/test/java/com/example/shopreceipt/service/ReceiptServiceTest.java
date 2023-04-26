@@ -27,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
 
 /**
  * Test for the {@link ReceiptService}
@@ -89,13 +88,13 @@ class ReceiptServiceTest {
         @ParameterizedTest
         @ValueSource(longs = {1L, 2L, 3L})
         void checkProductIsPresentShouldReturnTrue(long argument) {
-            when(productService.getAll()).thenReturn(List.of(product1, product2, product3));
+            doReturn(List.of(product1, product2, product3)).when(productService).getAll();
             assertTrue(receiptService.productIsPresent(argument));
         }
 
         @Test
         void checkProductIsPresentShouldReturnFalse() {
-            when(productService.getAll()).thenReturn(List.of(product1, product2));
+            doReturn(List.of(product1, product2)).when(productService).getAll();
             assertFalse(receiptService.productIsPresent(3L));
         }
     }
@@ -104,7 +103,7 @@ class ReceiptServiceTest {
     class CardIsPresentTest {
         @Test
         void checkCardIsPresentShouldReturnTrue() {
-            when(cardService.getAll()).thenReturn(List.of(card1, card2));
+            doReturn(List.of(card1, card2)).when(cardService).getAll();
             assertAll(
                     () -> assertTrue(receiptService.cardIsPresent(1234)),
                     () -> assertTrue(receiptService.cardIsPresent(1111))
@@ -113,7 +112,7 @@ class ReceiptServiceTest {
 
         @Test
         void checkCardIsPresentShouldReturnFalse() {
-            when(cardService.getAll()).thenReturn(List.of(card1, card2));
+            doReturn(List.of(card1, card2)).when(cardService).getAll();
             assertFalse(receiptService.cardIsPresent(3333));
         }
     }
@@ -125,7 +124,7 @@ class ReceiptServiceTest {
         expectedMap.put(2L, 3);
         expectedMap.put(3L, 1);
 
-        when(productService.getAll()).thenReturn(List.of(product1, product2, product3));
+        doReturn(List.of(product1, product2, product3)).when(productService).getAll();
         assertAll(
                 () -> assertEquals(expectedMap, receiptService.sourceToMap("1-5 2-3 3-1")),
                 () -> assertEquals(expectedMap, receiptService.sourceToMap("1-5 2-3 3-1 card-1234")),
@@ -187,8 +186,8 @@ class ReceiptServiceTest {
 
     @Test
     void checkGetCardDiscountShouldReturnDiscount() {
-        when(cardService.getAll()).thenReturn(List.of(card1, card2));
-        when(cardService.getDiscountByNumber(1234)).thenReturn(10.0);
+        doReturn(List.of(card1, card2)).when(cardService).getAll();
+        doReturn(10.0).when(cardService).getDiscountByNumber(1234);
 
         var actualCardDiscount = receiptService.getCardDiscount("1-5 2-3 3-1 card-1234");
         assertAll(
@@ -205,9 +204,9 @@ class ReceiptServiceTest {
                 new ReceiptProduct(product3, 1)
         );
 
-        when(cardService.getAll()).thenReturn(List.of(card1, card2));
-        when(cardService.getDiscountByNumber(1234)).thenReturn(10.0);
-        when(cardService.getDiscountByNumber(1111)).thenReturn(20.0);
+        doReturn(List.of(card1, card2)).when(cardService).getAll();
+        doReturn(10.0).when(cardService).getDiscountByNumber(1234);
+        doReturn(20.0).when(cardService).getDiscountByNumber(1111);
 
         var actualTotalPrice1 = receiptService.getTotalPrice(receiptProducts, "1-5 2-3 3-1 card-1234");
         var actualTotalPrice2 = receiptService.getTotalPrice(receiptProducts, "1-5 2-3 3-1 card-1111");

@@ -14,17 +14,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Test for the {@link CardService}
@@ -58,7 +58,7 @@ class CardServiceTest {
 
         @Test
         void checkGetAllShouldReturnAllCards() {
-            when(cardRepository.findAll()).thenReturn(List.of(card1, card2));
+            doReturn(List.of(card1, card2)).when(cardRepository).findAll();
             assertAll(
                     () -> assertEquals(List.of(card1, card2), cardService.getAll()),
                     () -> assertEquals(2, cardService.getAll().size()),
@@ -69,8 +69,8 @@ class CardServiceTest {
 
         @Test
         void checkGetAllShouldReturnEmptyList() {
-            when(cardRepository.findAll()).thenReturn(Collections.emptyList());
-            assertEquals(Collections.emptyList(), cardService.getAll());
+            doReturn(emptyList()).when(cardRepository).findAll();
+            assertEquals(emptyList(), cardService.getAll());
         }
     }
 
@@ -78,8 +78,8 @@ class CardServiceTest {
     class GetByIdTest {
         @Test
         public void checkGetByIdShouldReturnCard() {
-            when(cardRepository.findById(1L)).thenReturn(Optional.of(card1));
-            when(cardRepository.findById(3L)).thenReturn(Optional.of(card3));
+            doReturn(Optional.of(card1)).when(cardRepository).findById(1L);
+            doReturn(Optional.of(card3)).when(cardRepository).findById(3L);
             assertAll(
                     () -> assertEquals(card1, cardService.getById(1L)),
                     () -> assertNotEquals(card3, cardService.getById(1L)),
@@ -89,7 +89,7 @@ class CardServiceTest {
 
         @Test
         void checkGetByIdShouldThrowEntityNotFoundException() {
-            when(cardRepository.findById(1L)).thenReturn(Optional.of(card1));
+            doReturn(Optional.of(card1)).when(cardRepository).findById(1L);
             assertAll(
                     () -> assertDoesNotThrow(() -> cardService.getById(1L)),
                     () -> assertThrows(EntityNotFoundException.class, () -> cardService.getById(0L)),
@@ -99,7 +99,7 @@ class CardServiceTest {
 
         @Test
         void checkGetByIdShouldThrowNullPointerException() {
-            when(cardRepository.findById(1L)).thenReturn(null);
+            doReturn(null).when(cardRepository).findById(1L);
             assertThrows(NullPointerException.class, () -> cardService.getById(1L));
         }
     }
@@ -121,8 +121,8 @@ class CardServiceTest {
     class GetByNumberTest {
         @Test
         void checkGetByNumberShouldReturnCard() {
-            when(cardRepository.findByNumber(1111)).thenReturn(Optional.of(card1));
-            when(cardRepository.findByNumber(1234)).thenReturn(Optional.of(card2));
+            doReturn(Optional.of(card1)).when(cardRepository).findByNumber(1111);
+            doReturn(Optional.of(card2)).when(cardRepository).findByNumber(1234);
             assertAll(
                     () -> assertEquals(card1, cardService.getByNumber(1111)),
                     () -> assertNotEquals(card1, cardService.getByNumber(1234))
@@ -131,7 +131,7 @@ class CardServiceTest {
 
         @Test
         void checkGetByNumberShouldThrowEntityNotFoundException() {
-            when(cardRepository.findByNumber(1111)).thenReturn(Optional.of(card1));
+            doReturn(Optional.of(card1)).when(cardRepository).findByNumber(1111);
             assertAll(
                     () -> assertDoesNotThrow(() -> cardService.getByNumber(1111)),
                     () -> assertThrows(EntityNotFoundException.class, () -> cardService.getByNumber(1234))
@@ -143,7 +143,7 @@ class CardServiceTest {
     class GetDiscountByNumberTest {
         @Test
         void checkGetDiscountByNumberShouldReturnDiscount() {
-            when(cardRepository.findByNumber(1111)).thenReturn(Optional.of(card1));
+            doReturn(Optional.of(card1)).when(cardRepository).findByNumber(1111);
             assertAll(
                     () -> assertEquals(10.0, cardService.getDiscountByNumber(1111)),
                     () -> assertNotEquals(15.0, cardService.getDiscountByNumber(1111))
@@ -152,7 +152,7 @@ class CardServiceTest {
 
         @Test
         void checkGetDiscountByNumberShouldThrowEntityNotFoundException() {
-            when(cardRepository.findByNumber(1111)).thenReturn(Optional.of(card1));
+            doReturn(Optional.of(card1)).when(cardRepository).findByNumber(1111);
             assertAll(
                     () -> assertDoesNotThrow(() -> cardService.getDiscountByNumber(1111)),
                     () -> assertThrows(EntityNotFoundException.class, () -> cardService.getDiscountByNumber(1234))
