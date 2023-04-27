@@ -27,10 +27,7 @@ public class ProductAspect {
     private final Factory<Long, Product> factory;
     private final Cache<Long, Product> cache;
 
-    public ProductAspect(
-            @Value("${cache.type}") String cacheType,
-            @Value("${cache.capacity}") Integer cacheCapacity
-    ) {
+    public ProductAspect(@Value("${cache.type}") String cacheType, @Value("${cache.capacity}") Integer cacheCapacity) {
         this.factory = new CacheFactory<>();
         this.cache = factory.initCache(cacheType, cacheCapacity);
     }

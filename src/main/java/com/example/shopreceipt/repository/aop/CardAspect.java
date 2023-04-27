@@ -27,10 +27,7 @@ public class CardAspect {
     private final Factory<Long, Card> factory;
     private final Cache<Long, Card> cache;
 
-    public CardAspect(
-            @Value("${cache.type}") String cacheType,
-            @Value("${cache.capacity}") Integer cacheCapacity
-    ) {
+    public CardAspect(@Value("${cache.type}") String cacheType, @Value("${cache.capacity}") Integer cacheCapacity) {
         this.factory = new CacheFactory<>();
         this.cache = factory.initCache(cacheType, cacheCapacity);
     }
